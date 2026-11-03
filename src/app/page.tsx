@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AccountControls } from "@/components/auth/account-controls";
 import { useGroups } from "@/components/groups/group-provider";
 import { calculateGroupBalances } from "@/lib/balances";
@@ -198,7 +198,33 @@ function AvatarStack({ members }: { members: GroupMember[] }) {
   );
 }
 
+function getGreeting(hour: number) {
+  return hour >= 12 && hour < 17
+    ? "Good afternoon"
+    : hour >= 17
+      ? "Good evening"
+      : "Good morning";
+}
+
+function formatDashboardDate(date: Date) {
+  return date.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "long",
+    weekday: "long",
+    year: "numeric",
+  });
+}
+
+function formatDashboardTime(date: Date) {
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
 export default function Home() {
+  const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const {
     groups,
     isLoading,
@@ -207,6 +233,14 @@ export default function Home() {
     userEmail,
     syncStatus,
   } = useGroups();
+  useEffect(() => {
+    const updateCurrentDate = () => setCurrentDate(new Date());
+
+    updateCurrentDate();
+    const intervalId = window.setInterval(updateCurrentDate, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
   const currentUserMember = userEmail
     ? groups
         .flatMap((group) => group.members)
@@ -276,6 +310,9 @@ export default function Home() {
         Math.abs(second.balanceMinor) - Math.abs(first.balanceMinor),
     )
     .slice(0, 2);
+  const greeting = currentDate ? getGreeting(currentDate.getHours()) : "Good morning";
+  const dashboardDate = currentDate ? formatDashboardDate(currentDate) : "";
+  const dashboardTime = currentDate ? formatDashboardTime(currentDate) : "";
 
   return (
     <div className="app-shell">
@@ -390,8 +427,14 @@ export default function Home() {
 
           <section aria-labelledby="welcome-heading" className="welcome-row">
             <div>
-              <p className="eyebrow">THURSDAY, OCTOBER 22, 2026</p>
-              <h1 id="welcome-heading">Good afternoon, {firstName} <span aria-hidden="true">✦</span></h1>
+              <p className="eyebrow">
+                <time dateTime={currentDate?.toISOString()}>{dashboardDate}</time>
+                {dashboardTime ? <span aria-hidden="true"> · </span> : null}
+                <span aria-label={dashboardTime ? `Current time: ${dashboardTime}` : undefined}>
+                  {dashboardTime}
+                </span>
+              </p>
+              <h1 id="welcome-heading">{greeting}, {firstName} <span aria-hidden="true">✦</span></h1>
               <p className="welcome-copy">Here&apos;s what&apos;s happening with your shared expenses.</p>
             </div>
             <a className="period-select" href="#monthly-overview">

@@ -3,7 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { GroupProvider } from "@/components/groups/group-provider";
 import Home from "./page";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
@@ -18,15 +21,27 @@ function renderHome() {
 }
 
 describe("home page", () => {
-  it("renders the dashboard heading", () => {
+  it.each([
+    ["04:59", "Good morning"],
+    ["05:00", "Good morning"],
+    ["11:59", "Good morning"],
+    ["12:00", "Good afternoon"],
+    ["16:59", "Good afternoon"],
+    ["17:00", "Good evening"],
+    ["23:59", "Good evening"],
+  ])("renders the %s greeting", (time, greeting) => {
+    vi.useFakeTimers();
+    const [hours, minutes] = time.split(":").map(Number);
+    vi.setSystemTime(new Date(2026, 10, 3, hours, minutes, 16));
     renderHome();
 
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: /good afternoon, nipun/i,
+        name: new RegExp(`${greeting}, nipun`, "i"),
       }),
     ).toBeTruthy();
+    expect(screen.getByText("Tuesday, November 3, 2026")).toBeTruthy();
   });
 
   it("clearly identifies the dashboard data as a demo", () => {
