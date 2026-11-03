@@ -318,15 +318,28 @@ input:focus-visible {
 }
 
 .password-toggle {
-  align-self: flex-end;
-  margin-top: 5px;
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
   border: 0;
+  border-radius: 6px;
   background: transparent;
   padding: 0;
-  color: #34764f;
-  font-size: 9px;
-  font-weight: 650;
+  color: #7e8980;
   cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: #f0f5ef;
+  color: #34764f;
+}
+
+.password-toggle:focus-visible {
+  outline-offset: 1px;
 }
 
 .auth-submit {

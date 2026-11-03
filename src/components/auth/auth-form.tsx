@@ -11,6 +11,31 @@ type AuthFormProps = {
 
 const initialState: AuthFormState = {};
 
+function PasswordVisibilityIcon({ hidden }: { hidden: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      height="16"
+      viewBox="0 0 24 24"
+      width="16"
+    >
+      <path
+        d={hidden
+          ? "M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.2A10.7 10.7 0 0 1 12 5c5.2 0 8.7 4.2 9.8 7a11.8 11.8 0 0 1-3.1 4.2M6.2 6.2C3.9 7.7 2.5 10 2.2 12c.5 1.4 1.5 3 3.1 4.2A10.7 10.7 0 0 0 12 19c1 0 2-.1 2.9-.4"
+          : "M2.2 12C3.3 9.2 6.8 5 12 5s8.7 4.2 9.8 7c-1.1 2.8-4.6 7-9.8 7s-8.7-4.2-9.8-7Z"}
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      {!hidden ? (
+        <circle cx="12" cy="12" fill="currentColor" r="2.5" />
+      ) : null}
+    </svg>
+  );
+}
+
 export function AuthForm({ mode, isSupabaseConfigured }: AuthFormProps) {
   const action = mode === "login" ? signIn : signUp;
   const [state, formAction, pending] = useActionState(action, initialState);
@@ -116,8 +141,14 @@ export function AuthForm({ mode, isSupabaseConfigured }: AuthFormProps) {
               type={showPassword ? "text" : "password"}
             />
             {isSignup ? (
-              <button aria-pressed={showPassword} className="password-toggle" onClick={() => setShowPassword((shown) => !shown)} type="button">
-                {showPassword ? "Hide password" : "Show password"}
+              <button
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                className="password-toggle"
+                onClick={() => setShowPassword((shown) => !shown)}
+                type="button"
+              >
+                <PasswordVisibilityIcon hidden={showPassword} />
               </button>
             ) : null}
             {errorFor("password")}
@@ -126,8 +157,14 @@ export function AuthForm({ mode, isSupabaseConfigured }: AuthFormProps) {
             <label className="form-field">
               <span>Confirm password</span>
               <input aria-describedby={validationErrors.confirmPassword ? "confirmPassword-error" : undefined} aria-label="Confirm password" autoComplete="new-password" id="confirmPassword" required type={showConfirmPassword ? "text" : "password"} />
-              <button aria-pressed={showConfirmPassword} className="password-toggle" onClick={() => setShowConfirmPassword((shown) => !shown)} type="button">
-                {showConfirmPassword ? "Hide password" : "Show password"}
+              <button
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                aria-pressed={showConfirmPassword}
+                className="password-toggle"
+                onClick={() => setShowConfirmPassword((shown) => !shown)}
+                type="button"
+              >
+                <PasswordVisibilityIcon hidden={showConfirmPassword} />
               </button>
               {errorFor("confirmPassword")}
             </label>
