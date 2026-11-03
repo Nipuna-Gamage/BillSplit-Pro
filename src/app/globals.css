@@ -303,6 +303,7 @@ input:focus-visible {
 
 .auth-form input {
   min-height: 41px;
+  padding-right: 45px;
 }
 
 .auth-form .form-field {
@@ -320,7 +321,7 @@ input:focus-visible {
 .password-toggle {
   position: absolute;
   right: 10px;
-  bottom: 12px;
+  top: 26px;
   display: grid;
   width: 28px;
   height: 28px;
