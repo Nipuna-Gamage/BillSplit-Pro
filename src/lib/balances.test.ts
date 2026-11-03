@@ -62,6 +62,53 @@ describe("equal expense allocation", () => {
 });
 
 describe("group balance calculation", () => {
+  it("matches the QA Test House four-expense scenario", () => {
+    const qaMembers: GroupMember[] = [
+      { id: "nipuna", name: "Nipuna", email: "nipuna@example.test", role: "Admin" },
+      { id: "kasun", name: "Kasun", email: "kasun@example.test", role: "Member" },
+      { id: "amal", name: "Amal", email: "amal@example.test", role: "Member" },
+      { id: "nimal", name: "Nimal", email: "nimal@example.test", role: "Member" },
+    ];
+    const participants = qaMembers.map((member) => member.id);
+    const qaExpenseInputs: Array<[string, number, string]> = [
+      ["Rent", 4_000_000, "nipuna"],
+      ["Electricity", 800_000, "kasun"],
+      ["Groceries", 1_200_000, "amal"],
+      ["Internet", 400_000, "nimal"],
+    ];
+    const qaExpenses: GroupExpense[] = qaExpenseInputs.map(
+      ([description, amountMinor, paidByMemberId], index) => ({
+        id: `qa-expense-${index + 1}`,
+        description,
+        category: description as GroupExpense["category"],
+        amountMinor,
+        paidByMemberId,
+        date: "2026-11-03",
+        notes: "",
+        participantMemberIds: participants,
+        settled: false,
+      }),
+    );
+
+    expect(
+      qaExpenses.reduce((total, expense) => total + expense.amountMinor, 0),
+    ).toBe(6_400_000);
+    expect(
+      splitExpenseEqually(6_400_000, participants),
+    ).toEqual(
+      [...participants].sort().map((memberId) => ({
+        memberId,
+        amountMinor: 1_600_000,
+      })),
+    );
+    expect(calculateGroupBalances(qaMembers, qaExpenses)).toEqual([
+      { memberId: "nipuna", balanceMinor: 2_400_000 },
+      { memberId: "kasun", balanceMinor: -800_000 },
+      { memberId: "amal", balanceMinor: -400_000 },
+      { memberId: "nimal", balanceMinor: -1_200_000 },
+    ]);
+  });
+
   it("credits the payer and debits each participant's equal share", () => {
     expect(
       calculateGroupBalances(members, [

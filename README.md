@@ -47,7 +47,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
    `supabase/migrations/20261022170000_add_normalized_database_schema.sql`,
    then
    `supabase/migrations/20261026100000_harden_financial_writes.sql`, then
-   `supabase/migrations/20261026120000_allow_group_owners_to_read_new_groups.sql`.
+   `supabase/migrations/20261026120000_allow_group_owners_to_read_new_groups.sql`,
+   then `supabase/migrations/20261103193000_repair_shared_groups_insert_rls.sql`.
    The second migration copies existing personal workspace groups into the
    shared-group schema. The third creates profile and normalized group,
    membership, expense, split, and settlement tables and backfills them from
@@ -135,6 +136,26 @@ npm run build
 ```
 
 Use `npm run test:watch` while developing tests.
+
+## Manual QA scenario
+
+To test the shared Supabase workflow without inserting data through scripts,
+sign in through the application UI and open **Groups → Create a group**.
+Create a group named **QA Test House** with currency **LKR**, then add Kasun,
+Amal, and Nimal as members alongside the owner Nipuna. Add these four expenses
+through the group page, selecting all four members for every split:
+
+- Rent — Rs. 40,000 — paid by Nipuna
+- Electricity — Rs. 8,000 — paid by Kasun
+- Groceries — Rs. 12,000 — paid by Amal
+- Internet — Rs. 4,000 — paid by Nimal
+
+The expected total is Rs. 64,000, each member's share is Rs. 16,000, and the
+balances should be Nipuna **+Rs. 24,000**, Kasun **−Rs. 8,000**, Amal
+**−Rs. 4,000**, and Nimal **−Rs. 12,000**. Apply the migrations in timestamp
+order before testing a configured Supabase environment. The repair migration
+ensures only the authenticated owner can insert a `shared_groups` row; it does
+not disable RLS or use a service-role key.
 
 ## Project structure
 
