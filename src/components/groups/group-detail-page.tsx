@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { AccountControls } from "@/components/auth/account-controls";
 import { calculateGroupBalances } from "@/lib/balances";
 import { formatLkr } from "@/lib/expenses";
 import { ExpenseManagement } from "./expense-management";
@@ -39,19 +38,12 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
   const groupName = group?.name ?? "";
 
   if (isLoading) {
-    return <main className="groups-screen"><p role="status">Loading your groups…</p></main>;
+    return <div className="groups-screen"><p role="status">Loading your groups…</p></div>;
   }
 
   if (!group) {
     return (
-      <main className="groups-screen">
-        <header className="groups-topbar">
-          <Link aria-label="Return to dashboard" className="groups-brand" href="/">
-            <span className="brand-mark" aria-hidden="true"><span /><span /><span /><span /></span>
-            <span><strong>BillSplit</strong> <em>Pro</em></span>
-          </Link>
-          <Link className="groups-back-link" href="/groups">All groups</Link>
-        </header>
+      <div className="groups-screen">
         <section className="group-not-found">
           <span aria-hidden="true" className="group-not-found-icon">?</span>
           <h1>Group not found</h1>
@@ -59,7 +51,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
           {persistenceError ? <p className="form-error" role="alert">{persistenceError}</p> : null}
           <Link className="primary-action" href="/groups">Go to groups</Link>
         </section>
-      </main>
+      </div>
     );
   }
 
@@ -141,18 +133,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
   }
 
   return (
-    <main className="groups-screen">
-      <header className="groups-topbar">
-        <Link aria-label="Return to dashboard" className="groups-brand" href="/">
-          <span className="brand-mark" aria-hidden="true"><span /><span /><span /><span /></span>
-          <span><strong>BillSplit</strong> <em>Pro</em></span>
-        </Link>
-        <Link className="groups-back-link" href="/groups">
-          <span aria-hidden="true">←</span> All groups
-        </Link>
-        <AccountControls />
-      </header>
-
+    <div className="groups-screen">
       <div className="groups-content group-detail-content">
         {isSupabaseMode ? (
           <>
@@ -390,6 +371,6 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
           <span>Demo workspace <span className="footer-dot">·</span> LKR</span>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }

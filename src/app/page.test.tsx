@@ -10,6 +10,7 @@ afterEach(() => {
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/",
 }));
 
 function renderHome() {
@@ -74,7 +75,7 @@ describe("home page", () => {
       )
         .getByRole("link", { name: "Expenses" })
         .getAttribute("href"),
-    ).toBe("#recent-activity");
+    ).toBe("/#recent-activity");
     expect(
       within(screen.getByRole("navigation", { name: "Main navigation" }))
         .getByRole("link", { name: "Settings" })

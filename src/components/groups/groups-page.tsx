@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { AccountControls } from "@/components/auth/account-controls";
 import { useGroups } from "./group-provider";
 
 const categories = ["Household", "Trip", "Family", "Other"] as const;
@@ -37,20 +36,7 @@ export function GroupsPage() {
   }
 
   return (
-    <main className="groups-screen">
-      <header className="groups-topbar">
-        <Link aria-label="Return to dashboard" className="groups-brand" href="/">
-          <span className="brand-mark" aria-hidden="true">
-            <span /><span /><span /><span />
-          </span>
-          <span><strong>BillSplit</strong> <em>Pro</em></span>
-        </Link>
-        <Link className="groups-back-link" href="/">
-          <span aria-hidden="true">←</span> Dashboard
-        </Link>
-        <AccountControls />
-      </header>
-
+    <div className="groups-screen">
       <div className="groups-content">
         {isSupabaseMode ? (
           <div className="demo-notice groups-demo-notice" role="note">
@@ -176,6 +162,6 @@ export function GroupsPage() {
           <span>Demo workspace <span className="footer-dot">·</span> LKR</span>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }

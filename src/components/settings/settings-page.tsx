@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AccountControls } from "@/components/auth/account-controls";
 import { useGroups } from "@/components/groups/group-provider";
 
 export function SettingsPage() {
@@ -19,20 +18,7 @@ export function SettingsPage() {
       : "Demo changes are temporary. Sign in or create an account to save and share your groups.";
 
   return (
-    <main className="settings-screen">
-      <header className="groups-topbar">
-        <Link aria-label="BillSplit Pro home" className="groups-brand" href="/">
-          <span aria-hidden="true" className="brand-mark">
-            <span /><span /><span /><span />
-          </span>
-          <span><strong>BillSplit</strong> <em>Pro</em></span>
-        </Link>
-        <Link className="groups-back-link" href="/">
-          <span aria-hidden="true">←</span> Dashboard
-        </Link>
-        <AccountControls />
-      </header>
-
+    <div className="settings-screen">
       <div className="settings-content">
         <div className="settings-heading">
           <p className="eyebrow">PREFERENCES &amp; ACCOUNT</p>
@@ -137,6 +123,6 @@ export function SettingsPage() {
           <span>{isSupabaseMode ? "Shared workspace" : "Demo workspace"} <span aria-hidden="true">·</span> LKR</span>
         </footer>
       </div>
-    </main>
+    </div>
   );
 }
