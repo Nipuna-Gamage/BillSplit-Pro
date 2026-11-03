@@ -2432,7 +2432,7 @@ p {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin: -9px 0 18px;
+  margin: 16px 0 18px;
   color: #9aa39c;
   font-size: 9px;
 }
