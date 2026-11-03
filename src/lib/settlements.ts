@@ -1,4 +1,5 @@
 import type { MemberBalance } from "./balances";
+import { isValidIsoDate } from "./dates";
 import { parseLkrMinorUnits } from "./expenses";
 import type { GroupMember } from "./groups";
 
@@ -22,21 +23,6 @@ export type SettlementInput = {
 export type SettlementResult<T> =
   | { success: true; value: T }
   | { success: false; error: string };
-
-function isValidDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
-
-  const [year, month, day] = value.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day));
-
-  return (
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day
-  );
-}
 
 export function createSettlement(
   input: SettlementInput,
@@ -84,7 +70,7 @@ export function createSettlement(
     };
   }
 
-  if (!isValidDate(input.date)) {
+  if (!isValidIsoDate(input.date)) {
     return { success: false, error: "Enter a valid settlement date." };
   }
 

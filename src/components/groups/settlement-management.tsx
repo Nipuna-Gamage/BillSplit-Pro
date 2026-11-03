@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { calculateGroupBalances } from "@/lib/balances";
+import { formatShortDate, localToday } from "@/lib/dates";
 import { formatLkr } from "@/lib/expenses";
 import type { SettlementInput } from "@/lib/settlements";
 import { useGroups } from "./group-provider";
@@ -9,16 +10,6 @@ import { useGroups } from "./group-provider";
 type SettlementManagementProps = {
   groupId: string;
 };
-
-function localToday(): string {
-  const today = new Date();
-
-  return [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 function emptyForm(fromMemberId: string, toMemberId: string): SettlementInput {
   return {
@@ -28,14 +19,6 @@ function emptyForm(fromMemberId: string, toMemberId: string): SettlementInput {
     date: localToday(),
     notes: "",
   };
-}
-
-function settlementDate(value: string): string {
-  return new Date(`${value}T12:00:00`).toLocaleDateString("en-LK", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export function SettlementManagement({ groupId }: SettlementManagementProps) {
@@ -269,7 +252,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
                     <strong>{recipient?.name ?? "Group member"}</strong>
                     {settlement.notes ? <span>· {settlement.notes}</span> : null}
                   </span>
-                  <time dateTime={settlement.date}>{settlementDate(settlement.date)}</time>
+                  <time dateTime={settlement.date}>{formatShortDate(settlement.date)}</time>
                   <strong className="settlement-amount">
                     {formatLkr(settlement.amountMinor)}
                   </strong>

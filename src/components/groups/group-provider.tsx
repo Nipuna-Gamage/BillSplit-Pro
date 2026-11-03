@@ -23,6 +23,7 @@ import {
   type ExpenseInput,
 } from "@/lib/expenses";
 import { calculateGroupBalances } from "@/lib/balances";
+import { isValidIsoDate } from "@/lib/dates";
 import {
   createSettlement as createDemoSettlement,
   deleteSettlement as deleteDemoSettlement,
@@ -923,20 +924,6 @@ function isDemoGroupArray(value: unknown): value is DemoGroup[] {
       )
     );
   });
-}
-
-function isValidIsoDate(value: string): boolean {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return false;
-  }
-
-  const [year, month, day] = value.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  return (
-    date.getUTCFullYear() === year &&
-    date.getUTCMonth() === month - 1 &&
-    date.getUTCDate() === day
-  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

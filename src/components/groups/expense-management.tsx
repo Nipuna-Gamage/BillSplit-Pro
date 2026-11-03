@@ -8,21 +8,12 @@ import {
   type ExpenseInput,
 } from "@/lib/expenses";
 import { splitExpenseEqually } from "@/lib/balances";
+import { formatShortDate, localToday } from "@/lib/dates";
 import { useGroups } from "./group-provider";
 
 type ExpenseManagementProps = {
   groupId: string;
 };
-
-function localToday(): string {
-  const today = new Date();
-
-  return [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0"),
-  ].join("-");
-}
 
 function emptyForm(memberId: string): ExpenseInput {
   return {
@@ -34,14 +25,6 @@ function emptyForm(memberId: string): ExpenseInput {
     notes: "",
     participantMemberIds: [],
   };
-}
-
-function formatExpenseDate(value: string): string {
-  return new Date(`${value}T12:00:00`).toLocaleDateString("en-LK", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function isExpenseCategory(value: string): value is ExpenseCategory {
@@ -251,7 +234,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
                 </div>
                 <span className="expense-history-payer">{payer?.name ?? "Group member"}</span>
                 <time className="expense-history-date" dateTime={expense.date}>
-                  {formatExpenseDate(expense.date)}
+                  {formatShortDate(expense.date)}
                 </time>
                 <strong className="expense-history-amount">{formatLkr(expense.amountMinor)}</strong>
                 <div className="expense-row-actions">
