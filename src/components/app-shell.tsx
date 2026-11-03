@@ -177,6 +177,53 @@ function currentUserName(userEmail: string, groups: { members: GroupMember[] }[]
   return member?.name ?? (userEmail ? userEmail.split("@")[0].replace(/[._-]+/g, " ") : "Nipun Perera");
 }
 
+function HeaderBreadcrumb({
+  pathname,
+  groups,
+}: {
+  pathname: string;
+  groups: { id: string; name: string }[];
+}) {
+  const groupId = pathname.startsWith("/groups/")
+    ? decodeURIComponent(pathname.split("/")[2] ?? "")
+    : "";
+  const group = groups.find((item) => item.id === groupId);
+  const isGroupsPage = pathname.startsWith("/groups");
+  const isGroupDetailPage = Boolean(groupId);
+
+  if (isGroupDetailPage) {
+    return (
+      <nav aria-label="Breadcrumb" className="topbar-context">
+        <Link className="breadcrumb-link" href="/">Overview</Link>
+        <span className="breadcrumb-divider">/</span>
+        <Link className="breadcrumb-link" href="/groups">Groups</Link>
+        <span className="breadcrumb-divider">/</span>
+        <span aria-current="page" className="breadcrumb-current">{group?.name ?? "Group"}</span>
+      </nav>
+    );
+  }
+
+  if (isGroupsPage) {
+    return (
+      <nav aria-label="Breadcrumb" className="topbar-context">
+        <Link className="breadcrumb-link" href="/">Overview</Link>
+        <span className="breadcrumb-divider">/</span>
+        <span aria-current="page" className="breadcrumb-current">Groups</span>
+      </nav>
+    );
+  }
+
+  const section = pathname.startsWith("/settings") ? "Settings" : "Overview";
+
+  return (
+    <div className="topbar-context">
+      <span className="breadcrumb-muted">Workspace</span>
+      <span className="breadcrumb-divider">/</span>
+      <span className="breadcrumb-current">{section}</span>
+    </div>
+  );
+}
+
 function AppShellContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [hash, setHash] = useState("");
@@ -192,8 +239,6 @@ function AppShellContent({ children }: { children: ReactNode }) {
     (total, group) => total + group.members.filter((member) => member.role !== "Admin").length,
     0,
   );
-  const section = pathname.startsWith("/groups") ? "Groups" : pathname.startsWith("/settings") ? "Settings" : "Overview";
-
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -222,7 +267,7 @@ function AppShellContent({ children }: { children: ReactNode }) {
       <main className="main-panel">
         <header className="topbar">
           <div className="mobile-brand"><BrandMark /><span><strong>BillSplit</strong><span className="brand-light">Pro</span></span></div>
-          <div className="topbar-context"><span className="breadcrumb-muted">Workspace</span><span className="breadcrumb-divider">/</span><span>{section}</span></div>
+          <HeaderBreadcrumb groups={groups} pathname={pathname} />
           <div className="topbar-actions">
             <div className="search-box"><Icon className="search-icon" name="search" /><input aria-label="Search expenses" placeholder="Search anything..." /><kbd>⌘ K</kbd></div>
             <button aria-label="Notifications" className="icon-button notification-button" type="button"><span className="notification-dot" /><svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></button>

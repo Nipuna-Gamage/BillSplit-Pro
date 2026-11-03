@@ -532,6 +532,8 @@ input:focus-visible {
 }
 
 .topbar-context {
+  min-width: 0;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -541,9 +543,23 @@ input:focus-visible {
 }
 
 .breadcrumb-muted,
-.breadcrumb-divider {
+.breadcrumb-divider,
+.breadcrumb-link {
   color: #9aa39c;
   font-weight: 450;
+}
+
+.breadcrumb-link:hover {
+  color: #36774e;
+}
+
+.breadcrumb-current {
+  min-width: 0;
+  overflow: hidden;
+  color: #354139;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-actions {
@@ -1611,8 +1627,19 @@ p {
     height: 28px;
   }
 
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 62px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .topbar-context {
-    display: none;
+    order: 3;
+    flex-basis: 100%;
+    min-height: 18px;
+    font-size: 10px;
   }
 
   .search-box {
@@ -1694,7 +1721,8 @@ p {
 
 @media (max-width: 640px) {
   .topbar {
-    height: 58px;
+    height: auto;
+    min-height: 58px;
     padding: 0 16px;
   }
 
@@ -2426,27 +2454,6 @@ p {
 
 .group-detail-content {
   max-width: 1080px;
-}
-
-.group-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 14px 0 18px;
-  color: #9aa39c;
-  font-size: 9px;
-}
-
-.group-breadcrumb a:hover {
-  color: #36774e;
-}
-
-.group-breadcrumb [aria-current="page"] {
-  overflow: hidden;
-  color: #536057;
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .group-detail-hero {

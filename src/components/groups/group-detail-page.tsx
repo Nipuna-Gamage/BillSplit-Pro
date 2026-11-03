@@ -159,14 +159,6 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
         )}
         {persistenceError ? <p className="form-error" role="alert">{persistenceError}</p> : null}
 
-        <nav aria-label="Breadcrumb" className="group-breadcrumb">
-          <Link href="/">Overview</Link>
-          <span aria-hidden="true">/</span>
-          <Link href="/groups">Groups</Link>
-          <span aria-hidden="true">/</span>
-          <span aria-current="page">{group.name}</span>
-        </nav>
-
         <section aria-labelledby="group-detail-title" className="group-detail-hero">
           <div className="group-detail-heading">
             <span className="group-detail-icon" aria-hidden="true">
