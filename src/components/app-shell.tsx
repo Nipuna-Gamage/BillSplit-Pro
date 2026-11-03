@@ -223,6 +223,16 @@ function HeaderBreadcrumb({
     );
   }
 
+  if (pathname.startsWith("/account")) {
+    return (
+      <nav aria-label="Breadcrumb" className="topbar-context">
+        <Link className="breadcrumb-link" href="/">Overview</Link>
+        <span className="breadcrumb-divider">/</span>
+        <span aria-current="page" className="breadcrumb-current">Account</span>
+      </nav>
+    );
+  }
+
   const section = pathname.startsWith("/settings") ? "Settings" : "Overview";
 
   return (

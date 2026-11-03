@@ -82,6 +82,7 @@ export function AccountControls() {
           role="region"
         >
           <span className="account-email">{fullName ? `${fullName} · ${userEmail}` : userEmail}</span>
+          <Link className="account-menu-link" href="/account">My account</Link>
           <button disabled={pending} onClick={handleSignOut} type="button">
             {pending ? "Signing out…" : "Sign Out"}
           </button>
