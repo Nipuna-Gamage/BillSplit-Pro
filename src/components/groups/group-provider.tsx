@@ -332,6 +332,13 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       buildUpdate: (current: DemoGroup[]) => MutationUpdate<T>,
     ): Promise<MutationResult<T>> {
       const operation = mutationQueueRef.current.then(async () => {
+        if (isSupabaseMode && !userRef.current) {
+          return {
+            success: false as const,
+            error: "Sign in before saving workspace changes.",
+          };
+        }
+
         if (isSupabaseMode && !workspaceReadyRef.current) {
           return {
             success: false as const,
@@ -387,31 +394,55 @@ export function GroupProvider({ children }: { children: ReactNode }) {
             };
           }
 
-          const { data, error } = isNewGroup
-            ? await supabase.from("shared_groups").insert({
-                id: changedGroup.id,
-                owner_id: user.id,
-                data: changedGroup,
-              }).select("updated_at").single()
-            : await supabase.rpc("save_group_data", {
-                p_group_id: changedGroup.id,
-                p_data: changedGroup,
-                p_expected_updated_at: expectedVersion,
-              });
+          if (isNewGroup) {
+            const {
+              data: { user: authenticatedUser },
+              error: authError,
+            } = await supabase.auth.getUser();
 
-          if (error) {
-            const message = `Could not save your group changes. ${error.message}`;
-            setPersistenceError(message);
-            return { success: false as const, error: message };
-          }
-
-          if (typeof data === "string") {
-            savedVersion = data;
-          } else if (data && typeof data === "object" && "updated_at" in data) {
-            const updatedAt = data.updated_at;
-            if (typeof updatedAt === "string") {
-              savedVersion = updatedAt;
+            if (
+              authError ||
+              !authenticatedUser ||
+              authenticatedUser.id !== user.id ||
+              authenticatedUser.id !== userRef.current?.id
+            ) {
+              const message =
+                "Could not verify your current Supabase session. Sign in again before creating a group.";
+              setPersistenceError(message);
+              return { success: false as const, error: message };
             }
+
+            const { data, error } = await supabase
+              .from("shared_groups")
+              .insert({
+                id: changedGroup.id,
+                owner_id: authenticatedUser.id,
+                data: changedGroup,
+              })
+              .select("updated_at")
+              .single();
+
+            if (error) {
+              const message = `Could not save your group changes. ${error.message}`;
+              setPersistenceError(message);
+              return { success: false as const, error: message };
+            }
+
+            savedVersion = data?.updated_at ?? null;
+          } else {
+            const { data, error } = await supabase.rpc("save_group_data", {
+              p_group_id: changedGroup.id,
+              p_data: changedGroup,
+              p_expected_updated_at: expectedVersion,
+            });
+
+            if (error) {
+              const message = `Could not save your group changes. ${error.message}`;
+              setPersistenceError(message);
+              return { success: false as const, error: message };
+            }
+
+            savedVersion = typeof data === "string" ? data : null;
           }
 
           if (!savedVersion) {
