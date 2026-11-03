@@ -28,6 +28,28 @@ function credentials(formData: FormData): {
   return { email: email.trim().toLocaleLowerCase(), password };
 }
 
+function registrationDetails(formData: FormData): {
+  firstName: string;
+  lastName: string;
+} | null {
+  const firstName = formData.get("firstName");
+  const lastName = formData.get("lastName");
+
+  if (
+    typeof firstName !== "string" ||
+    typeof lastName !== "string" ||
+    !firstName.trim() ||
+    !lastName.trim()
+  ) {
+    return null;
+  }
+
+  return {
+    firstName: firstName.trim(),
+    lastName: lastName.trim(),
+  };
+}
+
 export async function signIn(
   _previousState: AuthFormState,
   formData: FormData,
@@ -40,6 +62,10 @@ export async function signIn(
 
   if (!input) {
     return { error: "Enter your email address and password." };
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email) || input.email.length > 254) {
+    return { error: "Enter a valid email address." };
   }
 
   const supabase = await createClient();
@@ -66,6 +92,16 @@ export async function signUp(
     return { error: "Enter your email address and password." };
   }
 
+  const details = registrationDetails(formData);
+
+  if (!details) {
+    return { error: "Enter your first and last name." };
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email) || input.email.length > 254) {
+    return { error: "Enter a valid email address." };
+  }
+
   if (input.password.length < 8) {
     return { error: "Use a password with at least 8 characters." };
   }
@@ -75,6 +111,11 @@ export async function signUp(
     ...input,
     options: {
       emailRedirectTo: new URL("/auth/callback?next=%2F", getSiteUrl()).toString(),
+      data: {
+        first_name: details.firstName,
+        last_name: details.lastName,
+        display_name: `${details.firstName} ${details.lastName}`,
+      },
     },
   });
 

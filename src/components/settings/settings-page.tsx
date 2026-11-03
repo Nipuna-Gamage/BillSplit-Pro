@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useGroups } from "@/components/groups/group-provider";
 
 export function SettingsPage() {
-  const { isSupabaseMode, userEmail } = useGroups();
+  const { isSupabaseMode, userEmail, userFirstName, userLastName } = useGroups();
   const isSignedIn = isSupabaseMode && Boolean(userEmail);
-  const accountName = userEmail
+  const accountName = [userFirstName, userLastName].filter(Boolean).join(" ") || (userEmail
     ? userEmail.split("@")[0].replace(/[._-]+/g, " ")
     : isSupabaseMode
       ? "Not signed in"
-      : "Demo account";
+      : "Demo account");
   const accountDescription = isSignedIn
     ? "Your groups and expenses are saved to your account and shared only with accepted group members."
     : isSupabaseMode
@@ -36,7 +36,7 @@ export function SettingsPage() {
           </div>
           <div className="settings-account-summary">
             <span aria-hidden="true" className="settings-avatar">
-              {userEmail ? userEmail.slice(0, 2).toLocaleUpperCase() : "D"}
+              {accountName.slice(0, 2).toLocaleUpperCase()}
             </span>
             <div className="settings-account-copy">
               <strong>{accountName}</strong>

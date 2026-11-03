@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthForm } from "./auth-form";
 
@@ -32,5 +32,31 @@ describe("authentication forms", () => {
     ).toBe(false);
     expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href"))
       .toBe("/login");
+    expect(screen.getByLabelText("First name")).toBeTruthy();
+    expect(screen.getByLabelText("Last name")).toBeTruthy();
+    expect(screen.getByLabelText("Confirm password")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("shows individual signup validation errors and does not submit", async () => {
+    render(<AuthForm mode="signup" isSupabaseConfigured />);
+
+    fireEvent.submit(screen.getByRole("button", { name: "Create account" }).closest("form")!);
+
+    expect(screen.getByText("Enter your first name.")).toBeTruthy();
+    expect(screen.getByText("Enter your last name.")).toBeTruthy();
+    expect(screen.getByText("Enter a valid email address.")).toBeTruthy();
+    expect(screen.getByText("Use at least 8 characters.")).toBeTruthy();
+    expect(screen.getByText("Confirm your password.")).toBeTruthy();
+  });
+
+  it("toggles password visibility accessibly", () => {
+    render(<AuthForm mode="signup" isSupabaseConfigured />);
+
+    const password = screen.getByLabelText("Password");
+    expect(password.getAttribute("type")).toBe("password");
+    fireEvent.click(screen.getAllByRole("button", { name: "Show password" })[0]);
+    expect(password.getAttribute("type")).toBe("text");
+    expect(screen.getByRole("button", { name: "Hide password" })).toBeTruthy();
   });
 });

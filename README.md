@@ -48,7 +48,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
    then
    `supabase/migrations/20261026100000_harden_financial_writes.sql`, then
    `supabase/migrations/20261026120000_allow_group_owners_to_read_new_groups.sql`,
-   then `supabase/migrations/20261103193000_repair_shared_groups_insert_rls.sql`.
+   then `supabase/migrations/20261103193000_repair_shared_groups_insert_rls.sql`,
+   then `supabase/migrations/20261103220000_add_profile_names.sql`.
    The second migration copies existing personal workspace groups into the
    shared-group schema. The third creates profile and normalized group,
    membership, expense, split, and settlement tables and backfills them from

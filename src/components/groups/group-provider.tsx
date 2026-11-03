@@ -68,6 +68,8 @@ type GroupContextValue = {
   syncStatus: "demo" | "connecting" | "connected" | "error";
   persistenceError: string;
   userEmail: string;
+  userFirstName: string;
+  userLastName: string;
   isGroupOwner: (groupId: string) => boolean;
   createGroup: (input: CreateGroupInput) => Promise<MutationResult<DemoGroup>>;
   addMember: (
@@ -124,6 +126,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(isSupabaseMode);
   const [persistenceError, setPersistenceError] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [userFirstName, setUserFirstName] = useState("");
+  const [userLastName, setUserLastName] = useState("");
   const groupsRef = useRef(groups);
   const userRef = useRef<User | null>(null);
   const groupVersionsRef = useRef(new Map<string, string>());
@@ -144,6 +148,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       userRef.current = user;
       workspaceReadyRef.current = false;
       setUserEmail(user?.email ?? "");
+      setUserFirstName(typeof user?.user_metadata?.first_name === "string" ? user.user_metadata.first_name : "");
+      setUserLastName(typeof user?.user_metadata?.last_name === "string" ? user.user_metadata.last_name : "");
       setPersistenceError("");
 
       if (!user) {
@@ -152,11 +158,26 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         groupVersionsRef.current.clear();
         setOwnerGroupIds(new Set());
         setPendingInvitations([]);
+        setUserFirstName("");
+        setUserLastName("");
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        setPersistenceError(`Could not load your profile. ${profileError.message}`);
+      } else if (profile) {
+        setUserFirstName(profile.first_name ?? "");
+        setUserLastName(profile.last_name ?? "");
+      }
+
       const { data, error } = await supabase
         .from("shared_groups")
         .select("id, owner_id, data, updated_at")
@@ -248,6 +269,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         groupVersionsRef.current.clear();
         setOwnerGroupIds(new Set());
         setPendingInvitations([]);
+        setUserFirstName("");
+        setUserLastName("");
       }
       userRef.current = nextUser;
       workspaceReadyRef.current = false;
@@ -481,6 +504,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       syncStatus,
       persistenceError,
       userEmail,
+      userFirstName,
+      userLastName,
       isGroupOwner(groupId) {
         return !isSupabaseMode || ownerGroupIds.has(groupId);
       },
@@ -832,6 +857,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     persistenceError,
     syncStatus,
     userEmail,
+    userFirstName,
+    userLastName,
   ]);
 
   return <GroupContext.Provider value={value}>{children}</GroupContext.Provider>;

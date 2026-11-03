@@ -8,7 +8,8 @@ import { createClient } from "@/lib/supabase/client";
 
 export function AccountControls() {
   const router = useRouter();
-  const { userEmail, isSupabaseMode } = useGroups();
+  const { userEmail, userFirstName, userLastName, isSupabaseMode } = useGroups();
+  const fullName = [userFirstName, userLastName].filter(Boolean).join(" ");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -60,7 +61,7 @@ export function AccountControls() {
       <button
         aria-controls={isMenuOpen ? "account-menu" : undefined}
         aria-expanded={isMenuOpen}
-        aria-label={`Account menu for ${userEmail}`}
+        aria-label={`Account menu for ${fullName || userEmail}`}
         className="account-avatar-button"
         onClick={() => {
           setError("");
@@ -71,7 +72,7 @@ export function AccountControls() {
         <span aria-hidden="true" className="topbar-avatar">
           {userEmail.slice(0, 2).toLocaleUpperCase()}
         </span>
-        <span className="account-trigger-email">{userEmail}</span>
+        <span className="account-trigger-email">{fullName || userEmail}</span>
       </button>
       {isMenuOpen ? (
         <div
@@ -80,7 +81,7 @@ export function AccountControls() {
           id="account-menu"
           role="region"
         >
-          <span className="account-email">{userEmail}</span>
+          <span className="account-email">{fullName ? `${fullName} · ${userEmail}` : userEmail}</span>
           <button disabled={pending} onClick={handleSignOut} type="button">
             {pending ? "Signing out…" : "Sign Out"}
           </button>

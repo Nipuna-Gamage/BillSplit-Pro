@@ -70,6 +70,8 @@ export default function Home() {
     isSupabaseMode,
     persistenceError,
     userEmail,
+    userFirstName,
+    userLastName,
     syncStatus,
   } = useGroups();
   useEffect(() => {
@@ -89,10 +91,12 @@ export default function Home() {
             userEmail.trim().toLocaleLowerCase(),
         )
     : undefined;
-  const currentUserName = currentUserMember?.name ??
-    (userEmail
-      ? userEmail.split("@")[0].replace(/[._-]+/g, " ")
-      : "Nipun Perera");
+  const currentUserName = (
+    [userFirstName, userLastName].filter(Boolean).join(" ") ||
+    currentUserMember?.name
+  ) ?? (userEmail
+    ? userEmail.split("@")[0].replace(/[._-]+/g, " ")
+    : "Nipun Perera");
   const firstName = currentUserName.split(/\s+/)[0] || "there";
   const allExpenses = groups.flatMap((group) =>
     group.expenses.map((expense) => ({

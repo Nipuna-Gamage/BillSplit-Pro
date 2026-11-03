@@ -92,6 +92,16 @@ beforeEach(() => {
   const invitationsTable = {
     select: vi.fn().mockReturnValue(invitationsRead),
   };
+  const profilesTable = {
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { first_name: "Owner", last_name: "Example" },
+          error: null,
+        }),
+      }),
+    }),
+  };
   const channel = {
     on: vi.fn().mockReturnThis(),
     subscribe: vi.fn().mockReturnThis(),
@@ -105,7 +115,11 @@ beforeEach(() => {
       }),
     },
     from: vi.fn((table: string) =>
-      table === "shared_groups" ? sharedGroupsTable : invitationsTable,
+      table === "shared_groups"
+        ? sharedGroupsTable
+        : table === "group_invitations"
+          ? invitationsTable
+          : profilesTable,
     ),
     channel: vi.fn().mockReturnValue(channel),
     removeChannel: vi.fn(),

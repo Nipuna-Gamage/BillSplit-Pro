@@ -8,6 +8,7 @@ const { createClient, redirect, supabase } = vi.hoisted(() => ({
       resetPasswordForEmail: vi.fn(),
       getUser: vi.fn(),
       updateUser: vi.fn(),
+      signUp: vi.fn(),
     },
   },
 }));
@@ -19,7 +20,7 @@ vi.mock("@/lib/supabase/config", () => ({
 }));
 vi.mock("@/lib/supabase/server", () => ({ createClient }));
 
-import { requestPasswordReset, updatePassword } from "./actions";
+import { requestPasswordReset, signUp, updatePassword } from "./actions";
 
 function formData(values: Record<string, string>) {
   const data = new FormData();
@@ -38,9 +39,53 @@ describe("password recovery actions", () => {
       data: { user: { id: "user-1" } },
       error: null,
     });
+
     supabase.auth.updateUser.mockResolvedValue({ error: null });
+    supabase.auth.signUp.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+
     redirect.mockImplementation((path: string) => {
       throw new Error(`redirect:${path}`);
+    });
+  });
+
+  describe("registration action", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+      createClient.mockResolvedValue(supabase);
+      supabase.auth.signUp.mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+    });
+
+    it("sends names as auth metadata without confirm password", async () => {
+      const result = await signUp(
+        {},
+        formData({
+          firstName: "Nipuna",
+          lastName: "Perera",
+          email: "Nipuna@example.com",
+          password: "password123",
+        }),
+      );
+
+      expect(result.message).toContain("Check your email");
+      expect(supabase.auth.signUp).toHaveBeenCalledWith({
+        email: "nipuna@example.com",
+        password: "password123",
+        options: {
+          emailRedirectTo: "https://billsplit.example/auth/callback?next=%2F",
+          data: {
+            first_name: "Nipuna",
+            last_name: "Perera",
+            display_name: "Nipuna Perera",
+          },
+        },
+      });
+      expect(supabase.auth.signUp.mock.calls[0][0]).not.toHaveProperty("confirm_password");
     });
   });
 

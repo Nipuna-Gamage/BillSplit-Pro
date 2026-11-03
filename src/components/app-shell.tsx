@@ -167,7 +167,17 @@ function NavigationLinks({
   );
 }
 
-function currentUserName(userEmail: string, groups: { members: GroupMember[] }[]) {
+function currentUserName(
+  userEmail: string,
+  userFirstName: string,
+  userLastName: string,
+  groups: { members: GroupMember[] }[],
+) {
+  const profileName = [userFirstName, userLastName].filter(Boolean).join(" ");
+  if (profileName) {
+    return profileName;
+  }
+
   const member = userEmail
     ? groups.flatMap((group) => group.members).find(
         (item) => item.email.trim().toLocaleLowerCase() === userEmail.trim().toLocaleLowerCase(),
@@ -227,8 +237,8 @@ function HeaderBreadcrumb({
 function AppShellContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [hash, setHash] = useState("");
-  const { groups, isSupabaseMode, userEmail } = useGroups();
-  const name = currentUserName(userEmail, groups);
+  const { groups, isSupabaseMode, userEmail, userFirstName, userLastName } = useGroups();
+  const name = currentUserName(userEmail, userFirstName, userLastName, groups);
   useEffect(() => {
     const updateHash = () => setHash(window.location.hash);
     updateHash();
