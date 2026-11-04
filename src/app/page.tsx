@@ -6,7 +6,7 @@ import { AppShell, Icon } from "@/components/app-shell";
 import { useGroups } from "@/components/groups/group-provider";
 import { calculateGroupBalances } from "@/lib/balances";
 import { calculateDashboardUserBalance } from "@/lib/dashboard";
-import { formatLkr } from "@/lib/expenses";
+import { formatCurrency } from "@/lib/currency";
 import type { GroupMember } from "@/lib/groups";
 
 function AvatarStack({ members }: { members: GroupMember[] }) {
@@ -66,6 +66,7 @@ export default function Home() {
   const [currentDate, setCurrentDate] = useState<Date | null>(null);
   const {
     groups,
+    currency,
     isLoading,
     isSupabaseMode,
     persistenceError,
@@ -213,7 +214,7 @@ export default function Home() {
                 <span className="summary-label">Your balance</span>
                 <span className="balance-status">All groups</span>
               </div>
-              <p className="summary-value">{formatLkr(Math.abs(currentUserBalanceMinor))}</p>
+              <p className="summary-value">{formatCurrency(Math.abs(currentUserBalanceMinor), currency)}</p>
               <div className="summary-foot">
                 <span className="balance-pill">
                   <Icon name={currentUserBalanceMinor < 0 ? "arrowDown" : "arrowUp"} />
@@ -237,7 +238,7 @@ export default function Home() {
                 <span className="summary-label">Total recorded expenses</span>
                 <span className="summary-menu" aria-hidden="true">···</span>
               </div>
-              <p className="summary-value summary-value-dark">{formatLkr(sharedSpendMinor)}</p>
+              <p className="summary-value summary-value-dark">{formatCurrency(sharedSpendMinor, currency)}</p>
               <div className="summary-foot">
                 <span className="summary-subtle">
                   Across {isSupabaseMode ? "shared groups" : "demo groups"}
@@ -295,7 +296,7 @@ export default function Home() {
                       </span>
                     </div>
                     <span className="group-cell">{expense.groupName}</span>
-                    <strong className="amount-cell">{formatLkr(expense.amountMinor)}</strong>
+                    <strong className="amount-cell">{formatCurrency(expense.amountMinor, currency)}</strong>
                   </div>
                 ))}
               </div>
@@ -322,7 +323,7 @@ export default function Home() {
                     <span>{balance.groupName}</span>
                   </span>
                   <span className={`person-balance ${balance.balanceMinor > 0 ? "positive" : "negative"}`}>
-                    {balance.balanceMinor > 0 ? "+" : "−"} {formatLkr(Math.abs(balance.balanceMinor))}
+                    {balance.balanceMinor > 0 ? "+" : "−"} {formatCurrency(Math.abs(balance.balanceMinor), currency)}
                   </span>
                 </div>
               )) : (
@@ -352,7 +353,7 @@ export default function Home() {
                 <span className="chart-period">Last 6 months <Icon name="chevronDown" /></span>
               </div>
               <div
-                aria-label="Demo monthly shared spending: May 28 thousand, June 35 thousand, July 31 thousand, August 42 thousand, September 37 thousand, October 49 thousand LKR"
+                aria-label={`Demo monthly shared spending: May 28 thousand, June 35 thousand, July 31 thousand, August 42 thousand, September 37 thousand, October 49 thousand ${currency}`}
                 className="chart"
                 role="img"
               >
@@ -392,11 +393,12 @@ export default function Home() {
                     </span>
                     <span className="group-amount">
                       <strong>
-                        {formatLkr(
+                        {formatCurrency(
                           group.expenses.reduce(
                             (total, expense) => total + expense.amountMinor,
                             0,
                           ),
+                          currency,
                         )}
                       </strong>
                       <span>this month</span>
@@ -410,7 +412,7 @@ export default function Home() {
 
           <footer className="page-footer">
             <span>BillSplit Pro <span className="footer-dot">·</span> A clearer way to share.</span>
-            <span>Demo workspace <span className="footer-dot">·</span> LKR</span>
+            <span>Demo workspace <span className="footer-dot">·</span> {currency}</span>
           </footer>
         </div>
     </AppShell>

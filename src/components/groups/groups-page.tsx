@@ -14,6 +14,7 @@ export function GroupsPage() {
     isLoading,
     isSupabaseMode,
     persistenceError,
+    currency,
   } = useGroups();
   const router = useRouter();
   const [name, setName] = useState("");
@@ -159,7 +160,7 @@ export function GroupsPage() {
         </section>
         <footer className="page-footer groups-page-footer">
           <span>BillSplit Pro <span className="footer-dot">·</span> A clearer way to share.</span>
-          <span>Demo workspace <span className="footer-dot">·</span> LKR</span>
+          <span>Demo workspace <span className="footer-dot">·</span> {currency}</span>
         </footer>
       </div>
     </div>

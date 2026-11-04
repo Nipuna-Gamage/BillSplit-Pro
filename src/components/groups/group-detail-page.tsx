@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { calculateGroupBalances } from "@/lib/balances";
-import { formatLkr } from "@/lib/expenses";
+import { formatCurrency } from "@/lib/currency";
 import { ExpenseManagement } from "./expense-management";
 import { SettlementManagement } from "./settlement-management";
 import { useGroups } from "./group-provider";
@@ -28,6 +28,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
     isGroupOwner,
     persistenceError,
     syncStatus,
+    currency,
   } = useGroups();
   const group = groups.find((item) => item.id === groupId);
   const [name, setName] = useState("");
@@ -185,7 +186,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
                 <p className="panel-kicker">PEOPLE IN THIS GROUP</p>
                 <h2 id="members-title">Members <span className="member-count">{group.members.length}</span></h2>
               </div>
-              <span className="group-category-pill">LKR</span>
+              <span className="group-category-pill">{currency}</span>
             </div>
             <p className="member-intro">
               {isSupabaseMode
@@ -234,12 +235,14 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
                 <div><dt>Group name</dt><dd>{group.name}</dd></div>
                 <div><dt>Group type</dt><dd>{group.category}</dd></div>
                 <div><dt>Location</dt><dd>{group.location || "Not set"}</dd></div>
-                <div><dt>Currency</dt><dd>LKR <span>Sri Lankan Rupee</span></dd></div>
+                <div><dt>Currency</dt><dd>{currency}</dd></div>
                 <div>
                   <dt>{isSupabaseMode ? "Group expense total" : "Demo expense total"}</dt>
                   <dd>
-                    LKR {(group.expenses.reduce((total, expense) => total + expense.amountMinor, 0) / 100)
-                      .toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {formatCurrency(
+                      group.expenses.reduce((total, expense) => total + expense.amountMinor, 0),
+                      currency,
+                    )}
                   </dd>
                 </div>
               </dl>
@@ -322,7 +325,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
               <p className="panel-kicker">EQUAL SPLIT SUMMARY</p>
               <h2 id="group-balances-title">Member balances</h2>
             </div>
-            <span className="group-category-pill">LKR</span>
+            <span className="group-category-pill">{currency}</span>
           </div>
           <p className="group-balances-intro">
             Based on each member&apos;s share of unsettled expenses. Remainder cents are assigned consistently.
@@ -344,9 +347,9 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
                         : "group-balance-even"
                   }`}>
                     {balanceMinor > 0
-                      ? `Owed ${formatLkr(balanceMinor)}`
+                      ? `Owed ${formatCurrency(balanceMinor, currency)}`
                       : balanceMinor < 0
-                        ? `Owes ${formatLkr(Math.abs(balanceMinor))}`
+                        ? `Owes ${formatCurrency(Math.abs(balanceMinor), currency)}`
                         : "Settled up"}
                   </span>
                 </li>
@@ -360,7 +363,7 @@ export function GroupDetailPage({ groupId }: { groupId: string }) {
 
         <footer className="page-footer groups-page-footer">
           <span>BillSplit Pro <span className="footer-dot">·</span> A clearer way to share.</span>
-          <span>Demo workspace <span className="footer-dot">·</span> LKR</span>
+          <span>Demo workspace <span className="footer-dot">·</span> {currency}</span>
         </footer>
       </div>
     </div>

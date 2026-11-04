@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useGroups } from "@/components/groups/group-provider";
+import { currencyName, isCurrencyCode, supportedCurrencies } from "@/lib/currency";
 
 export function SettingsPage() {
-  const { isSupabaseMode, userEmail, userFirstName, userLastName } = useGroups();
+  const { currency, isSupabaseMode, setCurrency, userEmail, userFirstName, userLastName } = useGroups();
   const isSignedIn = isSupabaseMode && Boolean(userEmail);
   const accountName = [userFirstName, userLastName].filter(Boolean).join(" ") || (userEmail
     ? userEmail.split("@")[0].replace(/[._-]+/g, " ")
@@ -28,7 +29,6 @@ export function SettingsPage() {
 
         <section aria-labelledby="account-settings-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">01</span>
             <div>
               <p className="panel-kicker">YOUR PROFILE</p>
               <h2 id="account-settings-title">Account</h2>
@@ -59,7 +59,6 @@ export function SettingsPage() {
 
         <section aria-labelledby="preferences-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">02</span>
             <div>
               <p className="panel-kicker">APP PREFERENCES</p>
               <h2 id="preferences-title">Currency &amp; calculations</h2>
@@ -68,9 +67,26 @@ export function SettingsPage() {
           <div className="settings-detail-row">
             <div>
               <strong>Default currency</strong>
-              <span>Used to display shared expenses and balances.</span>
+              <span>Choose the currency code shown for expenses and balances.</span>
             </div>
-            <span className="settings-value">LKR <span>Sri Lankan Rupee</span></span>
+            <label className="currency-setting">
+              <span className="visually-hidden">Default currency</span>
+              <select
+                aria-label="Default currency"
+                onChange={(event) => {
+                  if (isCurrencyCode(event.target.value)) {
+                    setCurrency(event.target.value);
+                  }
+                }}
+                value={currency}
+              >
+                {supportedCurrencies.map((option) => (
+                  <option key={option.code} value={option.code}>
+                    {option.code} — {option.name}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <div className="settings-detail-row">
             <div>
@@ -80,13 +96,12 @@ export function SettingsPage() {
             <span className="settings-value">Equal split</span>
           </div>
           <p className="settings-note">
-            Currency and split behavior are currently fixed for this workspace.
+            Currency selection is saved in this browser and changes displayed currency labels only. It does not convert existing amounts.
           </p>
         </section>
 
         <section aria-labelledby="security-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">03</span>
             <div>
               <p className="panel-kicker">SECURITY &amp; SHARING</p>
               <h2 id="security-title">Access</h2>
@@ -99,15 +114,7 @@ export function SettingsPage() {
             </div>
             <Link className="settings-inline-link" href="/groups">Manage groups <span aria-hidden="true">→</span></Link>
           </div>
-          {isSignedIn ? (
-            <div className="settings-detail-row">
-              <div>
-                <strong>Password</strong>
-                <span>Request a password reset for your account.</span>
-              </div>
-              <Link className="settings-inline-link" href="/forgot-password">Reset password <span aria-hidden="true">→</span></Link>
-            </div>
-          ) : (
+          {!isSignedIn ? (
             <div className="settings-detail-row">
               <div>
                 <strong>Sign-in protection</strong>
@@ -115,12 +122,12 @@ export function SettingsPage() {
               </div>
               <Link className="settings-inline-link" href="/login">Sign in <span aria-hidden="true">→</span></Link>
             </div>
-          )}
+          ) : null}
         </section>
 
         <footer className="settings-footer">
           <span>BillSplit Pro <span aria-hidden="true">·</span> A clearer way to share.</span>
-          <span>{isSupabaseMode ? "Shared workspace" : "Demo workspace"} <span aria-hidden="true">·</span> LKR</span>
+          <span>{isSupabaseMode ? "Shared workspace" : "Demo workspace"} <span aria-hidden="true">·</span> {currencyName(currency)}</span>
         </footer>
       </div>
     </div>

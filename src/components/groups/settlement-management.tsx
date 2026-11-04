@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { calculateGroupBalances } from "@/lib/balances";
 import { formatShortDate, localToday } from "@/lib/dates";
-import { formatLkr } from "@/lib/expenses";
+import { formatCurrency } from "@/lib/currency";
 import type { SettlementInput } from "@/lib/settlements";
 import { useGroups } from "./group-provider";
 
@@ -27,6 +27,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
     createSettlement,
     deleteSettlement,
     isSupabaseMode,
+    currency,
   } = useGroups();
   const group = groups.find((item) => item.id === groupId);
   const balances = group
@@ -185,7 +186,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
           </select>
         </label>
         <label className="form-field">
-          <span>Amount (LKR) <span aria-hidden="true">*</span></span>
+          <span>Amount ({currency}) <span aria-hidden="true">*</span></span>
           <input
             inputMode="decimal"
             onChange={(event) => setForm({ ...form, amount: event.target.value })}
@@ -194,7 +195,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
             value={form.amount}
           />
           <span className="form-hint">
-            Up to {formatLkr(Math.max(0, maximumSettlement))} for this pair.
+            Up to {formatCurrency(Math.max(0, maximumSettlement), currency)} for this pair.
           </span>
         </label>
         <label className="form-field">
@@ -254,7 +255,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
                   </span>
                   <time dateTime={settlement.date}>{formatShortDate(settlement.date)}</time>
                   <strong className="settlement-amount">
-                    {formatLkr(settlement.amountMinor)}
+                    {formatCurrency(settlement.amountMinor, currency)}
                   </strong>
                   {isPending ? (
                     <span
@@ -279,7 +280,7 @@ export function SettlementManagement({ groupId }: SettlementManagementProps) {
                     </span>
                   ) : (
                     <button
-                      aria-label={`Remove settlement of ${formatLkr(settlement.amountMinor)}`}
+                      aria-label={`Remove settlement of ${formatCurrency(settlement.amountMinor, currency)}`}
                       className="expense-action expense-action-danger"
                       onClick={() => setPendingDeleteId(settlement.id)}
                       type="button"

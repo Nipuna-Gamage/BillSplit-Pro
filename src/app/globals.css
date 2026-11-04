@@ -4016,6 +4016,34 @@ p {
   font-weight: 400;
 }
 
+.currency-setting select {
+  width: min(230px, 42vw);
+  min-height: 36px;
+  border: 1px solid #e2e8e1;
+  border-radius: 7px;
+  background: #fff;
+  padding: 0 10px;
+  color: #32744d;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.currency-setting select:focus-visible {
+  border-color: #81ad8d;
+  outline: 3px solid rgb(99 164 116 / 16%);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
 .settings-inline-link {
   display: inline-flex;
   flex: 0 0 auto;

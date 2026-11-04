@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -10,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import type { User } from "@supabase/supabase-js";
+import { isCurrencyCode, type CurrencyCode } from "@/lib/currency";
 import {
   cancelGroupInvitation,
   inviteGroupMember,
@@ -71,6 +73,8 @@ type GroupContextValue = {
   userFirstName: string;
   userLastName: string;
   userAvatarUrl: string;
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
   isGroupOwner: (groupId: string) => boolean;
   createGroup: (input: CreateGroupInput) => Promise<MutationResult<DemoGroup>>;
   addMember: (
@@ -130,12 +134,35 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [userAvatarUrl, setUserAvatarUrl] = useState("");
+  const [currency, setCurrencyState] = useState<CurrencyCode>("LKR");
+  const setCurrency = useCallback((nextCurrency: CurrencyCode) => {
+    setCurrencyState(nextCurrency);
+    try {
+      window.localStorage.setItem("billsplit.currency", nextCurrency);
+    } catch {
+      // Keep the in-memory preference active when browser storage is unavailable.
+    }
+  }, []);
   const groupsRef = useRef(groups);
   const userRef = useRef<User | null>(null);
   const groupVersionsRef = useRef(new Map<string, string>());
   const workspaceReadyRef = useRef(!isSupabaseMode);
   const requestIdRef = useRef(0);
   const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
+
+  useEffect(() => {
+    let savedCurrency: string | null = null;
+    try {
+      savedCurrency = window.localStorage.getItem("billsplit.currency");
+    } catch {
+      return;
+    }
+    if (isCurrencyCode(savedCurrency) && savedCurrency !== "LKR") {
+      // Keep the server and first client render at the same default currency.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCurrencyState(savedCurrency);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isSupabaseMode) {
@@ -511,6 +538,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       userFirstName,
       userLastName,
       userAvatarUrl,
+      currency,
+      setCurrency,
       isGroupOwner(groupId) {
         return !isSupabaseMode || ownerGroupIds.has(groupId);
       },
@@ -865,6 +894,8 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     userFirstName,
     userLastName,
     userAvatarUrl,
+    currency,
+    setCurrency,
   ]);
 
   return <GroupContext.Provider value={value}>{children}</GroupContext.Provider>;

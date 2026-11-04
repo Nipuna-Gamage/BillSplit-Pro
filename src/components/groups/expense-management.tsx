@@ -3,11 +3,11 @@
 import { useState, type FormEvent } from "react";
 import {
   expenseCategories,
-  formatLkr,
   type ExpenseCategory,
   type ExpenseInput,
 } from "@/lib/expenses";
 import { splitExpenseEqually } from "@/lib/balances";
+import { formatCurrency } from "@/lib/currency";
 import { formatShortDate, localToday } from "@/lib/dates";
 import { useGroups } from "./group-provider";
 
@@ -38,6 +38,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
     updateExpense,
     deleteExpense,
     isSupabaseMode,
+    currency,
   } = useGroups();
   const group = groups.find((item) => item.id === groupId);
   const [form, setForm] = useState<ExpenseInput>(() =>
@@ -164,7 +165,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
               : "Track who paid and who is included. Expense changes stay in this demo only."}
           </p>
         </div>
-        <span className="expense-currency-pill">LKR</span>
+        <span className="expense-currency-pill">{currency}</span>
       </div>
 
       {error ? <p className="form-error expense-message" role="alert">{error}</p> : null}
@@ -225,7 +226,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
                             <span>
                               {activeGroup.members.find((member) => member.id === share.memberId)?.name}
                             </span>
-                            <strong>{formatLkr(share.amountMinor)}</strong>
+                            <strong>{formatCurrency(share.amountMinor, currency)}</strong>
                           </li>
                         ))}
                       </ul>
@@ -236,7 +237,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
                 <time className="expense-history-date" dateTime={expense.date}>
                   {formatShortDate(expense.date)}
                 </time>
-                <strong className="expense-history-amount">{formatLkr(expense.amountMinor)}</strong>
+                <strong className="expense-history-amount">{formatCurrency(expense.amountMinor, currency)}</strong>
                 <div className="expense-row-actions">
                   {deletePending ? (
                     <span className="delete-confirmation" role="group" aria-label={`Confirm removing ${expense.description}`}>
@@ -324,7 +325,7 @@ export function ExpenseManagement({ groupId }: ExpenseManagementProps) {
             </select>
           </label>
           <label className="form-field">
-            <span>Amount (LKR) <span aria-hidden="true">*</span></span>
+            <span>Amount ({currency}) <span aria-hidden="true">*</span></span>
             <input
               aria-describedby="expense-amount-help"
               inputMode="decimal"

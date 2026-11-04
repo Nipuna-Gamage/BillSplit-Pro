@@ -96,7 +96,7 @@ function AccountControlsContent({ placement, displayName }: AccountControlsProps
     setPending(true);
 
     try {
-      const { error: signOutError } = await createClient().auth.signOut();
+      const { error: signOutError } = await createClient().auth.signOut({ scope: "local" });
 
       if (signOutError) {
         setError(`Could not sign out. ${signOutError.message}`);

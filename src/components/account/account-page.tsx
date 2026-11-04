@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { useGroups } from "@/components/groups/group-provider";
 import { createClient } from "@/lib/supabase/client";
 
@@ -43,6 +42,7 @@ export function AccountPage() {
     userEmail,
     userFirstName,
     userLastName,
+    currency,
   } = useGroups();
   const [accountUser, setAccountUser] = useState<AccountUser | null>(null);
   const [pageError, setPageError] = useState("");
@@ -61,9 +61,6 @@ export function AccountPage() {
   const [passwordPending, setPasswordPending] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const [signOutPending, setSignOutPending] = useState(false);
-  const [signOutError, setSignOutError] = useState("");
-  const router = useRouter();
 
   useEffect(() => {
     let active = true;
@@ -195,21 +192,6 @@ export function AccountPage() {
     setPasswordPending(false);
   }
 
-  async function signOut() {
-    if (!isSupabaseMode) return;
-    setSignOutPending(true);
-    setSignOutError("");
-    const { error } = await createClient().auth.signOut();
-    if (error) {
-      setSignOutError(`Could not sign out. ${error.message}`);
-      setSignOutPending(false);
-      return;
-    }
-
-    router.replace("/login");
-    router.refresh();
-  }
-
   return (
     <div className="settings-screen">
       <div className="settings-content account-page-content">
@@ -226,7 +208,6 @@ export function AccountPage() {
 
         <section aria-labelledby="account-profile-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">01</span>
             <div><p className="panel-kicker">PROFILE</p><h2 id="account-profile-title">Personal information</h2></div>
           </div>
           <div className="account-profile-hero">
@@ -263,7 +244,6 @@ export function AccountPage() {
 
         <section aria-labelledby="verification-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">02</span>
             <div><p className="panel-kicker">EMAIL SECURITY</p><h2 id="verification-title">Email verification</h2></div>
           </div>
           <div className="account-verification-row">
@@ -277,7 +257,6 @@ export function AccountPage() {
 
         <section aria-labelledby="security-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">03</span>
             <div><p className="panel-kicker">SECURITY</p><h2 id="security-title">Change password</h2></div>
           </div>
           <form className="account-edit-form" onSubmit={changePassword}>
@@ -291,36 +270,26 @@ export function AccountPage() {
 
         <section aria-labelledby="workspace-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">04</span>
             <div><p className="panel-kicker">WORKSPACE</p><h2 id="workspace-title">Shared spaces</h2></div>
           </div>
           <div className="account-stat-grid"><div><strong>{groups.length}</strong><span>{groups.length === 1 ? "Group" : "Groups"}</span></div><div><strong>{groups.reduce((total, group) => total + group.members.length, 0)}</strong><span>Members</span></div></div>
           <div className="settings-actions"><Link className="primary-action" href="/groups">Manage groups</Link><Link className="settings-secondary-action" href="/settings">Open settings</Link></div>
         </section>
 
-        <section aria-labelledby="preferences-title" className="settings-panel">
-          <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">05</span>
-            <div><p className="panel-kicker">PREFERENCES</p><h2 id="preferences-title">Account preferences</h2></div>
-          </div>
-          <dl className="account-details-list">
-            <div><dt>Default currency</dt><dd>LKR — Sri Lankan Rupee</dd></div>
-            <div><dt>Notifications</dt><dd>In-app notifications are not configured</dd></div>
-          </dl>
-          <p className="settings-note">These preferences are currently read-only because no safe persistence mechanism is configured.</p>
-        </section>
-
         <section aria-labelledby="account-actions-title" className="settings-panel">
           <div className="settings-panel-heading">
-            <span aria-hidden="true" className="settings-panel-icon">06</span>
-            <div><p className="panel-kicker">ACCOUNT ACTIONS</p><h2 id="account-actions-title">Sign out</h2></div>
+            <div><p className="panel-kicker">ACCOUNT ACTIONS</p><h2 id="account-actions-title">Password recovery</h2></div>
           </div>
-          <p className="settings-description">Sign out of this browser session. You can sign in again at any time.</p>
-          {signOutError ? <p className="form-error" role="alert">{signOutError}</p> : null}
-          <button className="settings-secondary-action" disabled={signOutPending} onClick={() => void signOut()} type="button">{signOutPending ? "Signing out…" : "Sign out"}</button>
+          <div className="settings-detail-row">
+            <div>
+              <strong>Password reset</strong>
+              <span>Request a password reset for your account.</span>
+            </div>
+            <Link className="settings-inline-link" href="/forgot-password">Reset password <span aria-hidden="true">→</span></Link>
+          </div>
         </section>
 
-        <footer className="settings-footer"><span>BillSplit Pro <span aria-hidden="true">·</span> A clearer way to share.</span><span>{isSupabaseMode ? "Shared workspace" : "Demo workspace"} <span aria-hidden="true">·</span> LKR</span></footer>
+        <footer className="settings-footer"><span>BillSplit Pro <span aria-hidden="true">·</span> A clearer way to share.</span><span>{isSupabaseMode ? "Shared workspace" : "Demo workspace"} <span aria-hidden="true">·</span> {currency}</span></footer>
       </div>
     </div>
   );
