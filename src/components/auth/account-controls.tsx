@@ -216,7 +216,18 @@ function AccountControlsContent({ placement, displayName }: AccountControlsProps
                 onClick={handleSignOut}
                 type="button"
               >
-                <svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+                <svg
+                  aria-hidden="true"
+                  className="account-signout-icon"
+                  fill="none"
+                  height={18}
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                  width={18}
+                >
                   <path d="M10 17l5-5-5-5M15 12H3" />
                   <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" />
                 </svg>

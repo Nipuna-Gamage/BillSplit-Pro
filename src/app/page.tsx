@@ -96,7 +96,7 @@ export default function Home() {
     currentUserMember?.name
   ) ?? (userEmail
     ? userEmail.split("@")[0].replace(/[._-]+/g, " ")
-    : "Nipun Perera");
+    : "Nipuna Gamage");
   const firstName = currentUserName.split(/\s+/)[0] || "there";
   const allExpenses = groups.flatMap((group) =>
     group.expenses.map((expense) => ({

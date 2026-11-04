@@ -263,9 +263,9 @@ input:focus-visible {
 
 .account-menu-link svg,
 .account-signout-button svg {
-  width: 17px;
-  height: 17px;
-  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
 }
 
 .account-menu-divider {

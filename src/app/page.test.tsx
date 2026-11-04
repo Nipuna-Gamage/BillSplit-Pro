@@ -39,7 +39,7 @@ describe("home page", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: new RegExp(`${greeting}, nipun`, "i"),
+        name: new RegExp(`${greeting}, Nipuna`, "i"),
       }),
     ).toBeTruthy();
     expect(screen.getByText("Tuesday, November 3, 2026")).toBeTruthy();
