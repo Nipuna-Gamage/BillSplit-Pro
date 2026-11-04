@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { GroupProvider } from "@/components/groups/group-provider";
 import Home from "./page";
@@ -78,14 +78,16 @@ describe("home page", () => {
     ).toBe("/#recent-activity");
     expect(
       within(screen.getByRole("navigation", { name: "Main navigation" }))
-        .getByRole("link", { name: "Settings" })
-        .getAttribute("href"),
-    ).toBe("/settings");
+        .queryByRole("link", { name: "Settings" }),
+    ).toBeNull();
     expect(
       within(screen.getByRole("navigation", { name: "Mobile navigation" }))
-        .getByRole("link", { name: "Settings" })
-        .getAttribute("href"),
-    ).toBe("/settings");
+        .queryByRole("link", { name: "Settings" }),
+    ).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /account menu/i }));
+    expect(screen.getByRole("link", { name: "Settings" }).getAttribute("href"))
+      .toBe("/settings");
   });
 
   it("labels the search field for assistive technology", () => {

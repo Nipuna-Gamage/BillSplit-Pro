@@ -103,7 +103,6 @@ const navigation = [
   { label: "Expenses", href: "/#recent-activity", icon: "receipt" as const, matches: (path: string, hash: string) => path === "/" && hash === "#recent-activity" },
   { label: "Balances", href: "/#balances", icon: "wallet" as const, matches: (path: string, hash: string) => path === "/" && hash === "#balances" },
   { label: "Monthly Report", href: "/#monthly-overview", icon: "calendar" as const, matches: (path: string, hash: string) => path === "/" && hash === "#monthly-overview" },
-  { label: "Settings", href: "/settings", icon: "settings" as const, matches: (path: string) => path.startsWith("/settings") },
 ];
 
 export function Icon({ name, className }: { name: IconName; className?: string }) {

@@ -113,6 +113,9 @@ describe("account controls", () => {
     expect(screen.getByRole("region", { name: "Account menu" })).toBeTruthy();
     expect(screen.getByRole("link", { name: /my account/i }).getAttribute("href"))
       .toBe("/account");
+    expect(screen.getByRole("link", { name: "Settings" }).getAttribute("href"))
+      .toBe("/settings");
+    expect(screen.getByRole("separator")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Sign Out" })).toBeTruthy();
   });
 

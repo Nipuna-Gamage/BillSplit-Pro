@@ -196,15 +196,33 @@ function AccountControlsContent({ placement, displayName }: AccountControlsProps
             </svg>
             <span>My Account</span>
           </Link>
+          <Link
+            className="account-menu-link"
+            href="/settings"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3" />
+              <path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.8 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.8-1l-1.7.7-1.4-2.4L7.1 15a8 8 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.8-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.8 1l1.7-.7 1.4 2.4-1.4 1.1a8 8 0 0 1-.1 2z" />
+            </svg>
+            <span>Settings</span>
+          </Link>
           {isSignedIn ? (
-            <button
-              className="account-signout-button"
-              disabled={pending}
-              onClick={handleSignOut}
-              type="button"
-            >
-              {pending ? "Signing out…" : "Sign Out"}
-            </button>
+            <>
+              <div className="account-menu-divider" role="separator" />
+              <button
+                className="account-signout-button"
+                disabled={pending}
+                onClick={handleSignOut}
+                type="button"
+              >
+                <svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path d="M10 17l5-5-5-5M15 12H3" />
+                  <path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" />
+                </svg>
+                <span>{pending ? "Signing out…" : "Sign Out"}</span>
+              </button>
+            </>
           ) : null}
           {error ? <span role="alert">{error}</span> : null}
         </div>
