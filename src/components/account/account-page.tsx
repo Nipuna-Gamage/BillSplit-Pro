@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useGroups } from "@/components/groups/group-provider";
 import { createClient } from "@/lib/supabase/client";
@@ -64,7 +64,6 @@ export function AccountPage() {
   const [signOutPending, setSignOutPending] = useState(false);
   const [signOutError, setSignOutError] = useState("");
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     let active = true;
@@ -75,7 +74,7 @@ export function AccountPage() {
         return;
       }
 
-      const { data, error } = await supabase.auth.getUser();
+      const { data, error } = await createClient().auth.getUser();
       if (!active) {
         return;
       }
@@ -105,7 +104,7 @@ export function AccountPage() {
     return () => {
       active = false;
     };
-  }, [isSupabaseMode, supabase, userEmail]);
+  }, [isSupabaseMode, userEmail]);
 
   const displayName = [userFirstName, userLastName].filter(Boolean).join(" ")
     || userEmail.split("@")[0]?.replace(/[._-]+/g, " ")
@@ -119,6 +118,7 @@ export function AccountPage() {
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isSupabaseMode) return;
     setProfileError("");
     setProfileMessage("");
     const nextFirstName = firstName.trim();
@@ -130,7 +130,7 @@ export function AccountPage() {
     }
 
     setProfilePending(true);
-    const { error } = await supabase
+    const { error } = await createClient()
       .from("profiles")
       .update({
         first_name: nextFirstName,
@@ -149,6 +149,7 @@ export function AccountPage() {
   }
 
   async function resendVerification() {
+    if (!isSupabaseMode) return;
     setVerificationPending(true);
     setVerificationError("");
     setVerificationMessage("");
@@ -158,7 +159,7 @@ export function AccountPage() {
       return;
     }
 
-    const { error } = await supabase.auth.resend({ type: "signup", email });
+    const { error } = await createClient().auth.resend({ type: "signup", email });
     if (error) {
       setVerificationError(`Could not send a verification email. ${error.message}`);
     } else {
@@ -169,6 +170,7 @@ export function AccountPage() {
 
   async function changePassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isSupabaseMode) return;
     setPasswordError("");
     setPasswordMessage("");
 
@@ -182,7 +184,7 @@ export function AccountPage() {
     }
 
     setPasswordPending(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await createClient().auth.updateUser({ password: newPassword });
     if (error) {
       setPasswordError(`Could not update your password. ${error.message}`);
     } else {
@@ -194,9 +196,10 @@ export function AccountPage() {
   }
 
   async function signOut() {
+    if (!isSupabaseMode) return;
     setSignOutPending(true);
     setSignOutError("");
-    const { error } = await supabase.auth.signOut();
+    const { error } = await createClient().auth.signOut();
     if (error) {
       setSignOutError(`Could not sign out. ${error.message}`);
       setSignOutPending(false);
