@@ -176,4 +176,13 @@ template; `.env.local` is ignored by Git.
 
 ## Deployment
 
-Production deployment is planned for Vercel after the web MVP is ready.
+For Netlify deployments with authentication, group sharing, and persistence,
+set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the
+site's environment variables using the values from your Supabase project's API
+settings. Make both variables available to the build and to each deploy context
+that needs live Supabase access, then trigger a new deploy. Next.js embeds
+`NEXT_PUBLIC_` variables during the build; adding them only at runtime does not
+configure an existing client bundle.
+
+Without these variables, the site builds and runs in demo mode. Account data and
+authentication require a configured Supabase project.

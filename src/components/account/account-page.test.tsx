@@ -1,9 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { renderToString } from "react-dom/server";
 import { AccountPage } from "./account-page";
 
 const mocks = vi.hoisted(() => ({
   useGroups: vi.fn(),
+  createClient: vi.fn(),
   getUser: vi.fn(),
   resend: vi.fn(),
   updateUser: vi.fn(),
@@ -18,7 +20,11 @@ vi.mock("@/components/groups/group-provider", () => ({
   useGroups: mocks.useGroups,
 }));
 vi.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
+  createClient: mocks.createClient,
+}));
+
+function mockClient() {
+  return {
     auth: {
       getUser: mocks.getUser,
       resend: mocks.resend,
@@ -30,13 +36,14 @@ vi.mock("@/lib/supabase/client", () => ({
         return { eq: vi.fn().mockResolvedValue({ error: null }) };
       },
     }),
-  }),
-}));
+  };
+}
 
 afterEach(cleanup);
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.createClient.mockImplementation(mockClient);
   mocks.useGroups.mockReturnValue({
     groups: [],
     isLoading: false,
@@ -60,6 +67,37 @@ beforeEach(() => {
 });
 
 describe("account page", () => {
+  it("prerenders without creating a Supabase client even in configured mode", () => {
+    mocks.createClient.mockImplementation(() => {
+      throw new Error("Supabase is not configured");
+    });
+
+    expect(renderToString(<AccountPage />)).toContain("Your account".toUpperCase());
+    expect(mocks.createClient).not.toHaveBeenCalled();
+  });
+
+  it("renders demo mode without Supabase configuration or account requests", () => {
+    mocks.useGroups.mockReturnValue({
+      groups: [],
+      isLoading: false,
+      isSupabaseMode: false,
+      persistenceError: "",
+      userEmail: "",
+      userFirstName: "",
+      userLastName: "",
+    });
+    mocks.createClient.mockImplementation(() => {
+      throw new Error("Supabase is not configured");
+    });
+
+    render(<AccountPage />);
+
+    expect(screen.getByText("Demo mode")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Update password" }).hasAttribute("disabled")).toBe(true);
+    expect(mocks.createClient).not.toHaveBeenCalled();
+    expect(mocks.getUser).not.toHaveBeenCalled();
+  });
+
   it("displays the authenticated profile and supports editing names", async () => {
     render(<AccountPage />);
 
