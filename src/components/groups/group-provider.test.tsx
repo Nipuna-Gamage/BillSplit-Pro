@@ -52,6 +52,11 @@ function GroupCreationProbe() {
   );
 }
 
+function ProfileProbe() {
+  const { userAvatarUrl } = useGroups();
+  return <output>{userAvatarUrl}</output>;
+}
+
 function renderProvider() {
   return render(
     <GroupProvider>
@@ -127,6 +132,26 @@ beforeEach(() => {
 });
 
 describe("Supabase group creation authorization", () => {
+  it("exposes an authenticated profile photo URL from auth metadata", async () => {
+    mocks.getUser.mockResolvedValue({
+      data: {
+        user: {
+          ...authenticatedUser,
+          user_metadata: { picture: "https://example.com/profile.png" },
+        },
+      },
+      error: null,
+    });
+
+    render(
+      <GroupProvider>
+        <ProfileProbe />
+      </GroupProvider>,
+    );
+
+    expect(await screen.findByText("https://example.com/profile.png")).toBeTruthy();
+  });
+
   it("uses the verified authenticated user as owner immediately before insertion", async () => {
     renderProvider();
     const createButton = await screen.findByRole("button", {

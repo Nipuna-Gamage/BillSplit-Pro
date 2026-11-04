@@ -247,7 +247,7 @@ function HeaderBreadcrumb({
 function AppShellContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [hash, setHash] = useState("");
-  const { groups, isSupabaseMode, userEmail, userFirstName, userLastName } = useGroups();
+  const { groups, userEmail, userFirstName, userLastName } = useGroups();
   const name = currentUserName(userEmail, userFirstName, userLastName, groups);
   useEffect(() => {
     const updateHash = () => setHash(window.location.hash);
@@ -276,14 +276,10 @@ function AppShellContent({ children }: { children: ReactNode }) {
         </div>
         <span className="nav-section-label">MENU</span>
         <NavigationLinks balanceCount={balanceCount} hash={hash} pathname={pathname} />
-        <div className="sidebar-bottom">
-          <div className="profile">
-            <span className="profile-avatar">{userEmail ? userEmail.slice(0, 2).toLocaleUpperCase() : "NP"}</span>
-            <span className="profile-copy"><strong>{name}</strong><span>{isSupabaseMode ? "Account" : "Home admin"}</span></span>
-            <Icon className="workspace-chevron" name="chevronDown" />
-          </div>
-        </div>
       </aside>
+      <div className="sidebar-account-dock">
+        <AccountControls displayName={name} placement="sidebar" />
+      </div>
       <main className="main-panel">
         <header className="topbar">
           <div className="mobile-brand"><BrandMark /><span><strong>BillSplit</strong><span className="brand-light">Pro</span></span></div>
@@ -291,7 +287,7 @@ function AppShellContent({ children }: { children: ReactNode }) {
           <div className="topbar-actions">
             <div className="search-box"><Icon className="search-icon" name="search" /><input aria-label="Search expenses" placeholder="Search anything..." /><kbd>⌘ K</kbd></div>
             <button aria-label="Notifications" className="icon-button notification-button" type="button"><span className="notification-dot" /><svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg></button>
-            <AccountControls />
+            <AccountControls displayName={name} placement="header" />
           </div>
         </header>
         {children}

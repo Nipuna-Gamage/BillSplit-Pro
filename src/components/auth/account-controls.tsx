@@ -1,18 +1,95 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { useGroups } from "@/components/groups/group-provider";
 import { createClient } from "@/lib/supabase/client";
 
-export function AccountControls() {
+type AccountControlsProps = {
+  placement: "header" | "sidebar";
+  displayName: string;
+};
+
+function initials(name: string, email: string) {
+  const words = (name || email || "NP").trim().split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((word) => word[0]?.toLocaleUpperCase() ?? "").join("");
+}
+
+function ProfileAvatar({
+  name,
+  email,
+  avatarUrl,
+  className,
+}: {
+  name: string;
+  email: string;
+  avatarUrl: string;
+  className: string;
+}) {
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState("");
+
+  return (
+    <span aria-hidden="true" className={className}>
+      {avatarUrl && avatarUrl !== failedAvatarUrl ? (
+        <Image
+          alt=""
+          className="profile-photo"
+          height={36}
+          onError={() => setFailedAvatarUrl(avatarUrl)}
+          src={avatarUrl}
+          unoptimized
+          width={36}
+        />
+      ) : (
+        initials(name, email)
+      )}
+    </span>
+  );
+}
+
+export function AccountControls(props: AccountControlsProps) {
+  const pathname = usePathname();
+
+  return <AccountControlsContent key={pathname} {...props} />;
+}
+
+function AccountControlsContent({ placement, displayName }: AccountControlsProps) {
   const router = useRouter();
-  const { userEmail, userFirstName, userLastName, isSupabaseMode } = useGroups();
-  const fullName = [userFirstName, userLastName].filter(Boolean).join(" ");
+  const { userEmail, userAvatarUrl, isSupabaseMode } = useGroups();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const isSignedIn = isSupabaseMode && Boolean(userEmail);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.target instanceof Node && !rootRef.current?.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+        triggerRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMenuOpen]);
 
   async function handleSignOut() {
     setError("");
@@ -40,52 +117,95 @@ export function AccountControls() {
     }
   }
 
-  if (!isSupabaseMode || !userEmail) {
+  if (placement === "header") {
+    if (!isSignedIn) {
+      return (
+        <div className="account-controls">
+          {!isSupabaseMode ? <span className="account-mode-label">Demo Mode</span> : null}
+          <Link className="account-link" href="/login">Sign In</Link>
+          <Link className="account-link account-link-primary" href="/signup">Create Account</Link>
+        </div>
+      );
+    }
+
     return (
-      <div className="account-controls">
-        {!isSupabaseMode ? (
-          <span className="account-mode-label">Demo Mode</span>
-        ) : null}
-        <Link className="account-link" href="/login">
-          Sign In
-        </Link>
-        <Link className="account-link account-link-primary" href="/signup">
-          Create Account
-        </Link>
+      <div className="header-profile" aria-label="Signed-in profile">
+        <ProfileAvatar
+          avatarUrl={userAvatarUrl}
+          className="topbar-avatar"
+          email={userEmail}
+          name={displayName}
+        />
+        <span className="header-profile-name">{displayName}</span>
       </div>
     );
   }
 
   return (
-    <div className="account-controls account-controls-signed-in">
+    <div className="sidebar-account" ref={rootRef}>
       <button
-        aria-controls={isMenuOpen ? "account-menu" : undefined}
+        aria-controls={isMenuOpen ? "sidebar-account-menu" : undefined}
         aria-expanded={isMenuOpen}
-        aria-label={`Account menu for ${fullName || userEmail}`}
-        className="account-avatar-button"
+        aria-label={`Account menu for ${displayName}`}
+        className="sidebar-account-trigger"
         onClick={() => {
           setError("");
           setIsMenuOpen((open) => !open);
         }}
+        ref={triggerRef}
         type="button"
       >
-        <span aria-hidden="true" className="topbar-avatar">
-          {userEmail.slice(0, 2).toLocaleUpperCase()}
+        <ProfileAvatar
+          avatarUrl={userAvatarUrl}
+          className="profile-avatar"
+          email={userEmail}
+          name={displayName}
+        />
+        <span className="profile-copy">
+          <strong>{displayName}</strong>
+          <span>Account</span>
         </span>
-        <span className="account-trigger-email">{fullName || userEmail}</span>
+        <svg
+          aria-hidden="true"
+          className={`sidebar-account-chevron${isMenuOpen ? " is-open" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.8"
+          viewBox="0 0 24 24"
+        >
+          <path d="m7 10 5 5 5-5" />
+        </svg>
       </button>
       {isMenuOpen ? (
         <div
           aria-label="Account menu"
-          className="account-menu"
-          id="account-menu"
+          className="account-menu sidebar-account-menu"
+          id="sidebar-account-menu"
           role="region"
         >
-          <span className="account-email">{fullName ? `${fullName} · ${userEmail}` : userEmail}</span>
-          <Link className="account-menu-link" href="/account">My account</Link>
-          <button disabled={pending} onClick={handleSignOut} type="button">
-            {pending ? "Signing out…" : "Sign Out"}
-          </button>
+          <Link
+            className="account-menu-link"
+            href="/account"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg aria-hidden="true" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M5 21a7 7 0 0 1 14 0" />
+            </svg>
+            <span>My Account</span>
+          </Link>
+          {isSignedIn ? (
+            <button
+              className="account-signout-button"
+              disabled={pending}
+              onClick={handleSignOut}
+              type="button"
+            >
+              {pending ? "Signing out…" : "Sign Out"}
+            </button>
+          ) : null}
           {error ? <span role="alert">{error}</span> : null}
         </div>
       ) : null}

@@ -70,6 +70,7 @@ type GroupContextValue = {
   userEmail: string;
   userFirstName: string;
   userLastName: string;
+  userAvatarUrl: string;
   isGroupOwner: (groupId: string) => boolean;
   createGroup: (input: CreateGroupInput) => Promise<MutationResult<DemoGroup>>;
   addMember: (
@@ -128,6 +129,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [userEmail, setUserEmail] = useState("");
   const [userFirstName, setUserFirstName] = useState("");
   const [userLastName, setUserLastName] = useState("");
+  const [userAvatarUrl, setUserAvatarUrl] = useState("");
   const groupsRef = useRef(groups);
   const userRef = useRef<User | null>(null);
   const groupVersionsRef = useRef(new Map<string, string>());
@@ -150,6 +152,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       setUserEmail(user?.email ?? "");
       setUserFirstName(typeof user?.user_metadata?.first_name === "string" ? user.user_metadata.first_name : "");
       setUserLastName(typeof user?.user_metadata?.last_name === "string" ? user.user_metadata.last_name : "");
+      setUserAvatarUrl(getUserAvatarUrl(user));
       setPersistenceError("");
 
       if (!user) {
@@ -160,6 +163,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
         setPendingInvitations([]);
         setUserFirstName("");
         setUserLastName("");
+        setUserAvatarUrl("");
         setIsLoading(false);
         return;
       }
@@ -506,6 +510,7 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       userEmail,
       userFirstName,
       userLastName,
+      userAvatarUrl,
       isGroupOwner(groupId) {
         return !isSupabaseMode || ownerGroupIds.has(groupId);
       },
@@ -859,9 +864,26 @@ export function GroupProvider({ children }: { children: ReactNode }) {
     userEmail,
     userFirstName,
     userLastName,
+    userAvatarUrl,
   ]);
 
   return <GroupContext.Provider value={value}>{children}</GroupContext.Provider>;
+}
+
+function getUserAvatarUrl(user: User | null): string {
+  const metadata = user?.user_metadata;
+  const candidate = metadata?.avatar_url ?? metadata?.picture;
+
+  if (typeof candidate !== "string") {
+    return "";
+  }
+
+  try {
+    const url = new URL(candidate);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : "";
+  } catch {
+    return "";
+  }
 }
 
 function isDemoGroupArray(value: unknown): value is DemoGroup[] {

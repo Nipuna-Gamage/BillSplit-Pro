@@ -240,6 +240,118 @@ input:focus-visible {
   font-size: 11px;
 }
 
+.account-menu-link,
+.account-signout-button {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 10px;
+  color: #526b57;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-menu-link:hover,
+.account-signout-button:hover:not(:disabled) {
+  background: #f3f7f3;
+}
+
+.account-menu-link svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+.sidebar-account-dock {
+  position: fixed;
+  z-index: 7;
+  bottom: 17px;
+  left: 18px;
+  width: 216px;
+}
+
+.sidebar-account {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-account-trigger {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  padding: 4px 3px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-account-trigger:hover {
+  background: #f6f8f5;
+}
+
+.sidebar-account-trigger .profile-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.sidebar-account-trigger .profile-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-account-chevron {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: #879189;
+  transition: transform 150ms ease;
+}
+
+.sidebar-account-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.sidebar-account-menu {
+  top: auto;
+  right: auto;
+  bottom: calc(100% + 8px);
+  left: 0;
+}
+
+.header-profile {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+.header-profile-name {
+  max-width: 180px;
+  overflow: hidden;
+  color: #68756c;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
 .auth-screen {
   display: grid;
   min-height: 100vh;
@@ -1606,6 +1718,11 @@ p {
     padding-left: 15px;
   }
 
+  .sidebar-account-dock {
+    left: 15px;
+    width: 190px;
+  }
+
   .main-panel {
     margin-left: 220px;
   }
@@ -1642,6 +1759,18 @@ p {
 @media (max-width: 850px) {
   .sidebar {
     display: none;
+  }
+
+  .sidebar-account-dock {
+    right: auto;
+    bottom: 76px;
+    left: 14px;
+    width: min(220px, calc(100vw - 28px));
+  }
+
+  .sidebar-account-menu {
+    right: auto;
+    left: 0;
   }
 
   .main-panel {
@@ -1794,6 +1923,15 @@ p {
   .topbar-avatar {
     width: 29px;
     height: 29px;
+  }
+
+  .header-profile {
+    gap: 5px;
+  }
+
+  .header-profile-name {
+    max-width: 105px;
+    font-size: 9px;
   }
 
   .account-controls {
